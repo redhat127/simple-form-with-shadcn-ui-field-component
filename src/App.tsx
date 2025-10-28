@@ -1,39 +1,31 @@
-import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { X } from "lucide-react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
+import z from "zod";
+import { CheckboxInput } from "./components/checkbox-input";
+import { SelectInput } from "./components/select-input";
+import { TextInput } from "./components/text-input";
+import { TextareaInput } from "./components/textarea-input";
+import { Button } from "./components/ui/button";
 import {
   Field,
-  FieldContent,
   FieldDescription,
   FieldError,
   FieldGroup,
-  FieldLabel,
   FieldLegend,
   FieldSet,
 } from "./components/ui/field";
-import { Input } from "./components/ui/input";
-import { Button } from "./components/ui/button";
-import { Textarea } from "./components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./components/ui/select";
-import { Checkbox } from "./components/ui/checkbox";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
 } from "./components/ui/input-group";
-import { X } from "lucide-react";
 
 const status = ["draft", "published", "archived"];
 
 const formSchema = z.object({
   name: z.string().trim().min(1, { error: "name is required." }),
-  description: z.string().trim().optional(),
+  description: z.string().trim(),
   status: z.string().refine((v) => status.includes(v), {
     error: "Please select a valid status.",
   }),
@@ -54,6 +46,7 @@ export const App = () => {
     defaultValues: {
       name: "",
       status: "",
+      description: "",
       notifications: { email: false, push: false, sms: false },
       users: [{ email: "" }],
     },
@@ -74,95 +67,25 @@ export const App = () => {
         })}
       >
         <FieldGroup>
-          <Controller
+          <TextInput
             control={form.control}
             name="name"
-            render={({ field, fieldState }) => {
-              return (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldContent>
-                    <FieldLabel htmlFor={field.name}>Name</FieldLabel>
-                    <FieldDescription>
-                      Enter your full name as you would like it displayed
-                    </FieldDescription>
-                  </FieldContent>
-                  <Input
-                    {...field}
-                    id={field.name}
-                    autoComplete="on"
-                    aria-invalid={fieldState.invalid}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              );
-            }}
+            label="Name"
+            description="Enter your full name as you would like it displayed"
           />
-          <Controller
+          <TextareaInput
             control={form.control}
             name="description"
-            render={({ field, fieldState }) => {
-              return (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldContent>
-                    <FieldLabel htmlFor={field.name}>Description</FieldLabel>
-                    <FieldDescription>
-                      Please provide a description of yourself
-                    </FieldDescription>
-                  </FieldContent>
-                  <Textarea
-                    {...field}
-                    id={field.name}
-                    autoComplete="on"
-                    aria-invalid={fieldState.invalid}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              );
-            }}
+            label="Description"
+            description="Please provide a description of yourself"
           />
-          <Controller
+          <SelectInput
             control={form.control}
             name="status"
-            render={({ field: { onChange, ...field }, fieldState }) => {
-              return (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldContent>
-                    <FieldLabel htmlFor={field.name}>Status</FieldLabel>
-                    <FieldDescription>
-                      Select the current status of your post
-                    </FieldDescription>
-                  </FieldContent>
-                  <Select
-                    {...field}
-                    onValueChange={onChange}
-                    data-invalid={fieldState.invalid}
-                  >
-                    <SelectTrigger
-                      id={field.name}
-                      onBlur={field.onBlur}
-                      aria-invalid={fieldState.invalid}
-                      ref={field.ref}
-                    >
-                      <SelectValue placeholder="Pick a status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {status.map((s) => (
-                        <SelectItem key={s} value={s}>
-                          {s}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              );
-            }}
+            label="Status"
+            description="Select the current status of your post"
+            placeholder="Pick a status"
+            items={status}
           />
           <FieldSet>
             <FieldLegend variant="label">Notifications</FieldLegend>
@@ -170,90 +93,21 @@ export const App = () => {
               Select the types of notifications you wish to receive about
               comments and post updates.
             </FieldDescription>
-            <FieldGroup data-slot="checkbox-group">
-              <Controller
+            <FieldGroup data-slot={"checkbox-group"}>
+              <CheckboxInput
                 control={form.control}
                 name="notifications.email"
-                render={({
-                  field: { value, onChange, ...field },
-                  fieldState,
-                }) => {
-                  return (
-                    <Field
-                      orientation="horizontal"
-                      data-invalid={fieldState.invalid}
-                    >
-                      <Checkbox
-                        {...field}
-                        checked={value}
-                        onCheckedChange={onChange}
-                        id={field.name}
-                      />
-                      <FieldContent>
-                        <FieldLabel htmlFor={field.name}>Email</FieldLabel>
-                        {fieldState.invalid && (
-                          <FieldError errors={[fieldState.error]} />
-                        )}
-                      </FieldContent>
-                    </Field>
-                  );
-                }}
+                label="Email"
               />
-              <Controller
-                control={form.control}
-                name="notifications.push"
-                render={({
-                  field: { value, onChange, ...field },
-                  fieldState,
-                }) => {
-                  return (
-                    <Field
-                      orientation="horizontal"
-                      data-invalid={fieldState.invalid}
-                    >
-                      <Checkbox
-                        {...field}
-                        checked={value}
-                        onCheckedChange={onChange}
-                        id={field.name}
-                      />
-                      <FieldContent>
-                        <FieldLabel htmlFor={field.name}>Push</FieldLabel>
-                        {fieldState.invalid && (
-                          <FieldError errors={[fieldState.error]} />
-                        )}
-                      </FieldContent>
-                    </Field>
-                  );
-                }}
-              />
-              <Controller
+              <CheckboxInput
                 control={form.control}
                 name="notifications.sms"
-                render={({
-                  field: { value, onChange, ...field },
-                  fieldState,
-                }) => {
-                  return (
-                    <Field
-                      orientation="horizontal"
-                      data-invalid={fieldState.invalid}
-                    >
-                      <Checkbox
-                        {...field}
-                        checked={value}
-                        onCheckedChange={onChange}
-                        id={field.name}
-                      />
-                      <FieldContent>
-                        <FieldLabel htmlFor={field.name}>Sms</FieldLabel>
-                        {fieldState.invalid && (
-                          <FieldError errors={[fieldState.error]} />
-                        )}
-                      </FieldContent>
-                    </Field>
-                  );
-                }}
+                label="Sms"
+              />
+              <CheckboxInput
+                control={form.control}
+                name="notifications.push"
+                label="Push"
               />
             </FieldGroup>
           </FieldSet>
